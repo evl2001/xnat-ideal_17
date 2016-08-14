@@ -4,12 +4,12 @@ FROM ubuntu:14.04
 
 EXPOSE 8080 8104
 
-# Avoid ERROR: invoke-rc.d: policy-rc.d denied execution of start.
+# Avoid ERROR: invoke-rc.d: policy-rc.d denied execution of start--does this even work??
 RUN echo "#!/bin/sh\nexit 0" > /usr/sbin/policy-rc.d
 
 # Update the sources list and install base packages
 RUN apt-get update && apt-get install -y tar less git curl vim wget unzip nano \
-        netcat software-properties-common mercurial unzip postgresql-9.3 nginx \
+        netcat software-properties-common mercurial unzip postgresql-client nginx \
 	tomcat7 tomcat7-admin tomcat7-common ca-certificates
 
 RUN service tomcat7 stop
