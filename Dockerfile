@@ -19,6 +19,8 @@ RUN apt-get update && apt-get install -y tar less git curl vim wget unzip nano \
         netcat software-properties-common mercurial unzip postgresql-client nginx \
 	tomcat7 tomcat7-admin tomcat7-common ca-certificates
 
+#RUN service tomcat7 start
+RUN service tomcat7 stop
 
 # Install Oracle JDK 7 via webupd8 ppa
 RUN echo oracle-java7-installer shared/accepted-oracle-license-v1-1 select true | debconf-set-selections && \
@@ -58,19 +60,39 @@ RUN chown -Rh xnat:xnat /var/cache/tomcat7
 ADD tomcat7 /etc/default/tomcat7
 RUN chown xnat:xnat /etc/default/tomcat7
 
+USER xnat
+
+RUN ln -s /etc/tomcat7 /usr/share/tomcat7/conf
+RUN ln -s /var/log/tomcat7 /usr/share/tomcat7/logs
+RUN ln -s /var/cache/tomcat7 /usr/share/tomcat7/work
+RUN mkdir /usr/share/tomcat7/temp
 
 ############XNAT WAR###############
 #download compiled 1.7 WAR  from bitbucket repository
+
 WORKDIR ${XNAT_USER_HOME}
 RUN wget https://bitbucket.org/xnatdev/xnat-web/downloads/xnat-web-1.7.0-SNAPSHOT.war
 RUN wget https://bitbucket.org/xnatdev/xnat-pipeline/downloads/xnat-pipeline-1.7.0-SNAPSHOT.zip
 
 #transfer configuration properties file
-PUT xnat-conf.properties ${XNAT_USER_HOME}/config
+ADD xnat-conf.properties ${XNAT_USER_HOME}/config/xnat-conf.properties
 
 #Copy WAR to webapps
 RUN rm -rf /var/lib/tomcat7/webapps/ROOT*
-RUN rsync ${XNAT_USER_HOME}/xnat-web-1.7.0-SNAPSHOT.war /var/lib/tomcat7/webapps/ROOT.war
+RUN cp ${XNAT_USER_HOME}/xnat-web-1.7.0-SNAPSHOT.war /var/lib/tomcat7/webapps/ROOT.war
 
 #####################START TOMCAT
-CMD service tomcat start && tail -f /var/lib/tomcat/logs/catalina.out
+
+USER root
+
+RUN chown -R xnat:xnat /data
+RUN chown -Rh xnat:xnat /usr/share/tomcat*
+RUN chown -Rh xnat:xnat /var/lib/tomcat7
+RUN chown -Rh xnat:xnat /etc/tomcat7
+RUN chown -Rh xnat:xnat /var/log/tomcat7
+RUN chown -Rh xnat:xnat /var/cache/tomcat7
+
+
+CMD su xnat -c "/usr/share/tomcat7/bin/startup.sh" && tail -f /var/lib/tomcat7/logs/catalina.out
+
+#RUN service tomcat7 start && tail -f /var/lib/tomcat7/logs/catalina.out

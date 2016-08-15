@@ -18,9 +18,9 @@ docker run -d \
 
 #Link tomcat container & run
 
-docker run \
+docker run -d \
 	--name xnat-stack \
-	-link xnat-postgres:postgres \
+	--link xnat-postgres:postgres \
 	-p 8080:8080 \
 	-p 8104:8104 \
 	idealctp/xnat:tomcat
