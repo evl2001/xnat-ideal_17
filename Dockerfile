@@ -57,6 +57,7 @@ RUN chown -Rh xnat:xnat /etc/tomcat7
 RUN chown -Rh xnat:xnat /var/log/tomcat7
 RUN chown -Rh xnat:xnat /var/cache/tomcat7
 
+
 ADD tomcat7 /etc/default/tomcat7
 RUN chown xnat:xnat /etc/default/tomcat7
 
@@ -66,6 +67,10 @@ RUN ln -s /etc/tomcat7 /usr/share/tomcat7/conf
 RUN ln -s /var/log/tomcat7 /usr/share/tomcat7/logs
 RUN ln -s /var/cache/tomcat7 /usr/share/tomcat7/work
 RUN mkdir /usr/share/tomcat7/temp
+RUN mkdir -p /usr/share/tomcat7/common/classes
+RUN mkdir -p /usr/share/tomcat7/server/classes
+RUN mkdir -p /usr/share/tomcat7/shared/classes
+#RUN mkdir -p /var/lib/tomcat7/work/Catalina
 
 ############XNAT WAR###############
 #download compiled 1.7 WAR  from bitbucket repository
@@ -91,8 +96,9 @@ RUN chown -Rh xnat:xnat /var/lib/tomcat7
 RUN chown -Rh xnat:xnat /etc/tomcat7
 RUN chown -Rh xnat:xnat /var/log/tomcat7
 RUN chown -Rh xnat:xnat /var/cache/tomcat7
+RUN chown -R xnat:xnat /var/lib/tomcat7/work/Catalina
 
-
-CMD su xnat -c "/usr/share/tomcat7/bin/startup.sh" && tail -f /var/lib/tomcat7/logs/catalina.out
+#USER xnat
+#CMD /usr/share/tomcat7/bin/startup.sh && tail -f /var/lib/tomcat7/logs/catalina.out
 
 #RUN service tomcat7 start && tail -f /var/lib/tomcat7/logs/catalina.out

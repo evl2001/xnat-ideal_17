@@ -3,14 +3,16 @@
 #Run script from main parent directory xnat-ideal_17
 #Build tomcat container
 
-docker build -t idealctp/xnat:tomcat ./
+TSTAMP=`date +%s`
+
+docker build -t idealctp/xnat:tomcat_${TSTAMP} ./
 
 #Pull and start postgres container
 
 docker pull postgres
 
 docker run -d \
-	--name xnat-postgres \
+	--name xnat-postgres_${TSTAMP} \
 	-e POSTGRES_USER=xnat \
 	-e POSTGRES_PASSWORD=xnat \
 	postgres
@@ -18,9 +20,9 @@ docker run -d \
 
 #Link tomcat container & run
 
-docker run -d \
-	--name xnat-stack \
-	--link xnat-postgres:postgres \
-	-p 8080:8080 \
-	-p 8104:8104 \
-	idealctp/xnat:tomcat
+docker run -it \
+	--name xnat-stack_${TSTAMP} \
+	--link xnat-postgres_${TSTAMP}:postgres \
+	-P \
+	idealctp/xnat:tomcat_${TSTAMP} \
+	/bin/bash
